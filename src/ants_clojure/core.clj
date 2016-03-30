@@ -16,13 +16,14 @@
 (defn create-ants []
   (for [i (range ant-count)]
     {:x (rand-int width)
-     :y (rand-int height)}))
+     :y (rand-int height)
+     :color Color/BLACK}))
 
 (defn draw-ants! [context]
   (.clearRect context 0 0 width height)
   (doseq [ant @ants]
-    ;conext.setFill(Color.BLACK); <-- Java
-    (.setFill context Color/BROWN)
+    ;context.setFill(Color.BLACK); <-- Java
+    (.setFill context (:color ant))
     (.fillOval context (:x ant) (:y ant) 5 5)))
   
 (defn random-step []
@@ -33,6 +34,19 @@
   (assoc ant
     :x (+ (random-step) (:x ant))
     :y (+ (random-step) (:y ant))))
+
+(defn aggravate-ant [ant]
+  (let [ant-position (+ (:x ant) (:y ant))
+        filtered-ants (filter (fn [a]
+                               (>= 10  (Math/abs (- ant-position (+ (:x a) (:y a))))))
+                         @ants)]
+;       (println ant-position)
+;       (println (count filtered-ants))
+       (if (<  1 (count filtered-ants))
+         (assoc ant :color Color/RED)
+         (assoc ant :color Color/BLACK))))
+    
+    
 
 (defn fps [now]
   (let [diff (- now @last-timestamp)
@@ -50,7 +64,8 @@
                 (handle [now]
                   (.setText fps-label (str (fps now)))
                   (reset! last-timestamp now)
-                  (reset! ants (pmap move-ant @ants))
+                  ;(reset! ants (pmap move-ant @ants))
+                  (reset! ants (doall (pmap aggravate-ant (pmap move-ant (deref ants)))))
                   (draw-ants! context)))]
     (reset! ants (create-ants))
     (.setTitle stage "Ants")
