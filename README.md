@@ -1,6 +1,6 @@
 # ants-clojure
 
-A Clojure app to ... well, that part is up to you.
+Working with Parallelism and Concurency with Zach "Oakey" Oakes
 
 ## Usage
 
