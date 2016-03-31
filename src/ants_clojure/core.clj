@@ -5,6 +5,7 @@
            [javafx.scene Scene]
            [javafx.scene.paint Color]
            [javafx.animation AnimationTimer])
+           ;[java.lang Math])
   (:gen-class :extends javafx.application.Application))
 
 (def width 800)
@@ -17,7 +18,8 @@
   (for [i (range ant-count)]
     {:x (rand-int width)
      :y (rand-int height)
-     :color Color/BLACK}))
+     :color Color/BLACK
+     :size 5}))
 
 (defn draw-ants! [context]
   (.clearRect context 0 0 width height)
@@ -36,12 +38,13 @@
     :y (+ (random-step) (:y ant))))
 
 (defn aggravate-ant [ant]
-  (let [ant-position (+ (:x ant) (:y ant))
+  (let [ant-position (- (:y ant) (:x ant))
         filtered-ants (filter (fn [a]
-                               (>= 10  (Math/abs (- ant-position (+ (:x a) (:y a))))))
+                               (>= 10  (Math/abs (Math/sqrt 
+                                                   (+ 
+                                                     (Math/pow (- (:x a) (:x ant)) 2) 
+                                                     (Math/pow (- (:y a) (:y ant)) 2))))))
                          @ants)]
-;       (println ant-position)
-;       (println (count filtered-ants))
        (if (<  1 (count filtered-ants))
          (assoc ant :color Color/RED)
          (assoc ant :color Color/BLACK))))
